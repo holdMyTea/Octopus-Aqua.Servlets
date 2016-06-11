@@ -2,6 +2,7 @@ package ua.com.octopus_aqua.servlet;
 
 import ua.com.octopus_aqua.data.DBConnector;
 import ua.com.octopus_aqua.data.Decoder;
+import ua.com.octopus_aqua.data.Log;
 import ua.com.octopus_aqua.data.PlantRow;
 
 import java.io.BufferedReader;
@@ -12,9 +13,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-
-
 
 @WebServlet("/deleteRow")
 public class DeleteRowServlet extends HttpServlet {
@@ -28,13 +26,13 @@ public class DeleteRowServlet extends HttpServlet {
 
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		BufferedReader reader = null;
-		try {
-			reader = request.getReader();
-			String json = reader.readLine();
 
-			json = Decoder.queryToMap(Decoder.decodeString(reader.readLine())).get(Decoder.JSON_TAG);
+		try{
+			String json = request.getParameter(Decoder.JSON_TAG);
+			Log.info("Got into delete: "+json);
+
 			PlantRow row = PlantRow.decodeJSON(json);
+			Log.info("After decoding: "+row.toString());
 
 			if (DBConnector.getInstance().deleteRow(row)) {
 				response.setStatus(HttpServletResponse.SC_OK);
@@ -42,13 +40,9 @@ public class DeleteRowServlet extends HttpServlet {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 
-		} catch (IOException ioex) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} catch (NullPointerException npex) {
+			Log.info("npex happened while deleting: "+npex.toString());
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} finally {
-			if (reader != null)
-				reader.close();
 		}
 	}
 }

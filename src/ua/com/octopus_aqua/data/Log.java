@@ -10,7 +10,7 @@ import java.util.Date;
 public class Log {
 	private static Log instance;
 
-	private final String logPath = "/home/rise42/workspace/Servlets/log/";
+	private final String logPath = "/home/rise42/BUFF/java/log/";
 
 	private BufferedWriter bw;
 
